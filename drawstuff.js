@@ -410,11 +410,11 @@ function main() {
     var imagedata = context.createImageData(w,h);
  
     // Define a rectangle in 2D with colors and coords at corners
-    var globals = { lightPos: new Vector(150,100,15),  // center light
+    var globals = { lightPos: new Vector(175,125,25),  // bottom right
                     lightCol: new Color(255,255,255),  // light is white
-                    ambientCol: new Color(40,40,40),   // dim ambient light
+                    ambientCol: new Color(50,50,50),   // dim ambient light
                     specCol: new Color(255,255,255),   // white specular highlight
-                    shininess: 20 };
+                    shininess: 25 };
 
     var tlAttribs = { diffuse: new Color(0,0,255)};
     var trAttribs = { diffuse: new Color(0,0,255)};
