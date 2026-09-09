@@ -299,22 +299,41 @@ function interpRect(imagedata,top,bottom,left,right,globals,tlAttribs,trAttribs,
     // modifies pass image data
     function shadePixel(imagedata,pixX,pixY,globals,attribs) {
         var difColor = new Color();
-        var worldLoc = new Vector(pixX,pixY,0); // assume rect at z=0
+        var worldLoc = new Vector(pixX,pixY,0);
         var lVect = new Vector();
-        
-        // get light vector
+        var normal = new Vector(0,0,1); // rect normal, points straight up in z
+    
         lVect.copy(globals.lightPos);
         lVect = Vector.subtract(lVect,worldLoc);
         lVect = Vector.normalize(lVect);
-        var NdotL = Vector.dot(lVect,new Vector(0,0,1)); // rect in xy plane
-        
-        // calc diffuse color
+        var NdotL = Math.max(0, Vector.dot(lVect,normal));
+    
+        // diffuse
         difColor.r = attribs.diffuse.r * globals.lightCol.r/255 * NdotL;
         difColor.g = attribs.diffuse.g * globals.lightCol.g/255 * NdotL;
         difColor.b = attribs.diffuse.b * globals.lightCol.b/255 * NdotL;
-        
+    
+        // ambient
+        var ambColor = new Color();
+        ambColor.r = attribs.diffuse.r * globals.ambientCol.r/255;
+        ambColor.g = attribs.diffuse.g * globals.ambientCol.g/255;
+        ambColor.b = attribs.diffuse.b * globals.ambientCol.b/255;
+    
+        // specular
+        var eyeVect = new Vector(0,0,1);
+        var reflectVect = Vector.subtract(Vector.scale(2*NdotL,normal), lVect);
+        reflectVect = Vector.normalize(reflectVect);
+        var RdotV = Math.max(0, Vector.dot(reflectVect,eyeVect));
+        var specIntensity = Math.pow(RdotV, globals.shininess);
+        var specColor = new Color();
+        specColor.r = globals.specCol.r * globals.lightCol.r/255 * specIntensity;
+        specColor.g = globals.specCol.g * globals.lightCol.g/255 * specIntensity;
+        specColor.b = globals.specCol.b * globals.lightCol.b/255 * specIntensity;
+    
+        difColor.add(ambColor).add(specColor);
+    
         drawPixel(imagedata,pixX,pixY,difColor);
-    } // end shade pixel
+    } // end shade pixel,pixX,pixY,difColor);
     
     try {
         if (   (typeof(tlAttribs) !== "object") || (typeof(trAttribs) !== "object")
@@ -391,9 +410,13 @@ function main() {
     var imagedata = context.createImageData(w,h);
  
     // Define a rectangle in 2D with colors and coords at corners
-    var globals = { lightPos: new Vector(150,150,10),  // light over left upper rect
-                    lightCol: new Color(255,255,255)}; // light is red
-    var tlAttribs = { diffuse: new Color(0,0,255)};    // all four rect verts blue
+    var globals = { lightPos: new Vector(50,100,15),   // light over left upper rect
+                    lightCol: new Color(255,255,255),  // light is white
+                    ambientCol: new Color(40,40,40),   // dim ambient light
+                    specCol: new Color(255,255,255),   // white specular highlight
+                    shininess: 20 };
+
+    var tlAttribs = { diffuse: new Color(0,0,255)};
     var trAttribs = { diffuse: new Color(0,0,255)};
     var brAttribs = { diffuse: new Color(0,0,255)};
     var blAttribs = { diffuse: new Color(0,0,255)};
