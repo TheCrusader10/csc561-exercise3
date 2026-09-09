@@ -410,7 +410,7 @@ function main() {
     var imagedata = context.createImageData(w,h);
  
     // Define a rectangle in 2D with colors and coords at corners
-    var globals = { lightPos: new Vector(50,100,15),   // light over left upper rect
+    var globals = { lightPos: new Vector(150,100,15),  // center light
                     lightCol: new Color(255,255,255),  // light is white
                     ambientCol: new Color(40,40,40),   // dim ambient light
                     specCol: new Color(255,255,255),   // white specular highlight
